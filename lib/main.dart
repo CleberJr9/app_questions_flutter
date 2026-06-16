@@ -1,40 +1,16 @@
-import 'package:app_questions/response.dart';
 import 'package:flutter/material.dart';
 import './question.dart';
+import './response.dart';
 
-main() => runApp(PerguntaApp());
+void main() => runApp(PerguntaApp());
+
+class PerguntaApp extends StatefulWidget {
+  @override
+  PerguntaState createState() => PerguntaState();
+}
 
 class PerguntaState extends State<PerguntaApp> {
-  var perguntaSelecionada = 0;
-  void funcaoResponder(String resposta) {
-    if (perguntaSelecionada < perguntasRespostas.length - 1) {
-      setState(() {
-        perguntaSelecionada++;
-      });
-    } else {
-      setState(() {
-        perguntaSelecionada = 0;
-      });
-    }
-    print("Resposta selecionada: $resposta");
-  }
-
-  final List<String> perguntas = [
-    "Qual é a sua cor favorita?",
-    "Qual é o seu animal favorito?",
-    "Qual é o seu instrutor favorito?",
-  ];
-  final List<String> respostas = [
-    "Preto",
-    "Azul",
-    "Verde",
-    "Cachorro",
-    "Gato",
-    "Coelho",
-    "Maria",
-    "João",
-    "Leo",
-  ];
+  int perguntaSelecionada = 0;
 
   final List<Map<String, dynamic>> perguntasRespostas = [
     {
@@ -51,47 +27,87 @@ class PerguntaState extends State<PerguntaApp> {
     },
   ];
 
+  void funcaoResponder(String resposta) {
+    setState(() {
+      perguntaSelecionada++;
+    });
+
+    print("Resposta selecionada: $resposta");
+  }
+
+  void reiniciarQuestionario() {
+    setState(() {
+      perguntaSelecionada = 0;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final bool finalizou = perguntaSelecionada >= perguntasRespostas.length;
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         appBar: AppBar(
-          title: Text(
+          title: const Text(
             "Perguntas",
-            style: TextStyle(
-              fontSize: 24,
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
           ),
-          backgroundColor: const Color.fromARGB(255, 0, 145, 255),
+          backgroundColor: Colors.blue,
         ),
         body: Center(
-          child: Column(
-            spacing: 12,
-            children: <Widget>[
-              Question(perguntasRespostas[perguntaSelecionada]["pergunta"]),
-              for (String resposta
-                  in perguntasRespostas[perguntaSelecionada]["resposta"])
-                ResponseQuestion(
-                  text: resposta,
-                  onPressed: () => funcaoResponder(resposta),
+          child: finalizou
+              ? Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text(
+                      "🎉 Parabéns!",
+                      style: TextStyle(
+                        fontSize: 30,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    const Text(
+                      "Você concluiu o questionário.",
+                      style: TextStyle(fontSize: 18),
+                    ),
+                    const SizedBox(height: 24),
+                    ElevatedButton(
+                      onPressed: reiniciarQuestionario,
+                      child: const Text("Reiniciar"),
+                    ),
+                  ],
+                )
+              : Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Question(
+                      perguntasRespostas[perguntaSelecionada]["pergunta"],
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    for (String resposta
+                        in perguntasRespostas[perguntaSelecionada]["resposta"])
+                      ResponseQuestion(
+                        text: resposta,
+                        onPressed: () => funcaoResponder(resposta),
+                      ),
+
+                    const SizedBox(height: 16),
+
+                    Text(
+                      "Pergunta ${perguntaSelecionada + 1} de ${perguntasRespostas.length}",
+                      style: const TextStyle(
+                        fontSize: 16,
+                        color: Colors.black45,
+                      ),
+                    ),
+                  ],
                 ),
-              Text(
-                "Pergunta ${perguntaSelecionada + 1} de ${perguntasRespostas.length}",
-                style: TextStyle(fontSize: 16, color: Colors.black45),
-              ),
-            ],
-          ),
         ),
       ),
     );
-  }
-}
-
-class PerguntaApp extends StatefulWidget {
-  PerguntaState createState() {
-    return PerguntaState();
   }
 }
